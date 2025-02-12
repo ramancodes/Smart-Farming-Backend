@@ -1,5 +1,3 @@
-# README
-
 Project Overview
 ===============
 
@@ -16,8 +14,10 @@ Table of Contents
 Project Structure
 -----------------
 
-* `src`: Source code for the project
-* `docs`: Documentation for the project
+* `Models`: Models used in the project
+    * `CropRecommedation`: Model and Scaler for crop recommendation
+* `CropRecommendation`: CropRecommendation modules
+* `Gemini`: Gemini Connectivity modules
 
 Project Features
 -----------------

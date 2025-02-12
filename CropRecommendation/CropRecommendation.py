@@ -1,4 +1,4 @@
-from GeminiGenAI import getExplanation
+from Gemini.GeminiGenAI import getExplanation
 from CropData import getCropsData
 import pandas as pd
 import joblib
@@ -29,6 +29,6 @@ def getCropRecommendation(nitrogen, phosphorus, potassium, temperature, humidity
 
     if predicted_crop:
         gpt_query = f'summaize the requirements for growing {predicted_crop} in 5 lines'
-        explanation = getExplanation(gpt_query)
+        explanation = getExplanation(gpt_query).replace("*", "")
 
     return predicted_crop, explanation

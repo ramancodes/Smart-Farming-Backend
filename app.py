@@ -1,3 +1,7 @@
+import sys
+sys.path.append('./CropRecommendation')
+sys.path.append('./Gemini')
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from CropRecommendation import getCropRecommendation

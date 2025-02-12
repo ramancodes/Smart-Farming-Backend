@@ -8,3 +8,5 @@
 
 # additional files
 /__pycache__
+/CropRecommendation/__pycache__
+/Gemini/__pycache__
