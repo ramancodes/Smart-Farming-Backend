@@ -1,0 +1,10 @@
+# enviroment variabels
+.env
+
+# virtual environment for the file
+/env
+/venv
+/myenv
+
+# additional files
+/__pycache__
