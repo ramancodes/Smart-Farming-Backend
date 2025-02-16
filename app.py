@@ -1,13 +1,22 @@
 import sys
 sys.path.append('./CropRecommendation')
 sys.path.append('./Gemini')
+sys.path.append('./Database')
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import joblib
 from CropRecommendation import getCropRecommendation
+from Database.connectDB import DB
+from Database.createTable import create_table
+from Database.dbOperations import register_user, login_user, update_profile, get_user_profile
+
+import warnings
+warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
+# middleware
 CORS(app, resources={
     r"/api/*": {
         "origins": ["http://localhost:5173"],
@@ -16,11 +25,23 @@ CORS(app, resources={
     }
 })
 
+# Load the pre-trained ML model and vectorizer
+CropRecommendation_model = joblib.load(open(".\Models\CropRecommendation\model.joblib", 'rb'))
+CropRecommendation_scaler = joblib.load(open(".\Models\CropRecommendation\scaler.joblib", 'rb'))
+
+# connect database
+db = DB("localhost", "SmartFarming", "postgres", "root")
+connection = db.connect()
+if connection != None:
+    if create_table(connection):
+        print("User Table Created")
+    else:
+        connection = None
+
 
 @app.route('/api/crop_recommendation', methods=['POST'])
 def crop_recommendation():
     try:
-        print(request)
         data = request.get_json()
         nitrogen = int(data['nitrogen'])
         phosphorus = int(data['phosphorus'])
@@ -44,7 +65,7 @@ def crop_recommendation():
         if ph>14 or ph<0:
             return jsonify({"success":False, 'message': 'Enter pH value between 0 and 14'}), 200
 
-        predicted_crop, explanation = getCropRecommendation(nitrogen, phosphorus, potassium, temperature, humidity, rainfall, ph)
+        predicted_crop, explanation = getCropRecommendation(CropRecommendation_model, CropRecommendation_scaler, nitrogen, phosphorus, potassium, temperature, humidity, rainfall, ph)
 
         return jsonify({"success":True, 'result': predicted_crop, 'explanation': explanation}), 200
     except Exception as e:
@@ -53,6 +74,128 @@ def crop_recommendation():
 @app.route('/api/disease_detection', methods=['POST'])
 def disease_detection():
     pass
+
+@app.route('/api/update_user', methods=['POST'])
+def updateUser():
+    try:
+        data = request.get_json()
+        email = str(data['email'])
+        name = str(data['name'])
+        gender = str(data['gender'])
+        contact = str(data['phoneNo'])
+        location = str(data['location'])
+        dob = str(data['dob'])
+
+        if None in (email, gender, contact, location, dob):
+            return jsonify({"success":False, 'message': 'Missing values'}), 200
+        
+        user_creds = {
+            'email': email,
+            'name': name,
+            'gender': gender,
+            'contact': contact,
+            'location': location,
+            'dob': dob
+        }
+        # print(user_creds)
+
+        # return jsonify({"success":True})
+
+        response = update_profile(connection, user_creds)
+        
+        if response["success"]:
+            return jsonify({"success":True, 'message': 'Profile updated successfully'}), 200
+        else:
+            return jsonify({"success":False, 'message': response['message']}), 200
+        
+    except Exception as e:
+        return jsonify({"success":False, 'message': str(e)}), 400
+
+@app.route('/api/register_user', methods=['POST'])
+def registerUser():
+    try:
+        data = request.get_json()
+        
+        email = str(data['email'])
+        password = str(data['password'])
+        name = str(data['name'])
+        
+        if None in (email, password, name):
+            return jsonify({"success":False, 'message': 'Missing values'}), 200
+        
+        if '@' not in email:
+            return jsonify({"success":False, 'message': 'Invalid name or email'}), 200
+        
+        if len(password) < 8:
+            return jsonify({"success":False, 'message': 'Password should be at least 8 characters'}), 200
+        
+        user = {
+            'email': email,
+            'password': password,
+            'name': name
+        }
+
+        # print(type(connection))
+
+        response = register_user(connection, user)
+
+        if response["success"]:
+            return jsonify({"success":True, 'message': 'User registered successfully. Login Again'}), 200
+        else:
+            return jsonify({"success":False, 'message': response['message']}), 200
+
+    except Exception as e:
+        return jsonify({"success":False, 'message': str(e)}), 400
+
+@app.route('/api/login_user', methods=['POST'])
+def loginUser():
+    try:
+        data = request.get_json()
+        email = str(data['email'])
+        password = str(data['password'])
+
+        if None in (email, password):
+            return jsonify({"success":False, 'message': 'Missing values'}), 200
+        
+        if '@' not in email:
+            return jsonify({"success":False, 'message': 'Invalid username or email'}), 200
+        
+        user_creds = {
+            'email': email,
+            'password': password
+        }
+
+        response = login_user(connection, user_creds)
+
+        if response['success']:
+            token = response['token']
+            return jsonify({"success":True, 'message': 'User logged in successfully', 'token': token}), 200
+        else:
+            return jsonify({"success":False, 'message': response['message']}), 200
+
+    except Exception as e:
+        return jsonify({"success":False, 'message': str(e)}), 400
+    
+
+@app.route('/api/get_user', methods=['POST'])
+def getUser():
+    try:
+        data = request.get_json()
+        token = str(data['token'])
+
+        if token=="" or token==None:
+            return jsonify({"success":False, 'message': 'Missing values'}), 200
+
+        response = get_user_profile(connection, token)
+
+        if response['success']:
+            user = response['user']
+            return jsonify({"success":True, 'message': 'User Details Fetched successfully', 'user': user}), 200
+        else:
+            return jsonify({"success":False, 'message': response['message']}), 200
+
+    except Exception as e:
+        return jsonify({"success":False, 'message': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

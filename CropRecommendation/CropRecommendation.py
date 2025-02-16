@@ -1,17 +1,8 @@
 from Gemini.GeminiGenAI import getExplanation
 from CropData import getCropsData
 import pandas as pd
-import joblib
 
-import warnings
-warnings.filterwarnings('ignore')
-
-# Load the pre-trained ML model and vectorizer
-model = joblib.load(open(".\Models\CropRecommendation\model.joblib", 'rb'))
-scaler = joblib.load(open(".\Models\CropRecommendation\scaler.joblib", 'rb'))
-
-
-def getCropRecommendation(nitrogen, phosphorus, potassium, temperature, humidity, rainfall, ph):
+def getCropRecommendation(model, scaler, nitrogen, phosphorus, potassium, temperature, humidity, rainfall, ph):
     df = pd.DataFrame({
             'N': [nitrogen],
             'P': [phosphorus],
