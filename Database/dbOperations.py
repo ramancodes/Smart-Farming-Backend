@@ -8,7 +8,6 @@ def get_user_profile(connection, token):
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM users WHERE userid = %s", (token,))
         user = cursor.fetchone()
-        # print("User", token)
         if user:
             user = list(user)
             del user[2]
@@ -27,6 +26,7 @@ def register_user(connection, user):
         connection.commit()
         return {"success":True, "message":"User created successfully"}
     except Error as e:
+        connection.rollback()
         print(f"The error '{e}' occurred")
         return {"success":False, "message":"User cannot be created., Error: " + str(e)}
 
@@ -45,11 +45,13 @@ def login_user(connection, user_creds):
     
 def update_profile(connection, user_creds):
     try:
+        # print(user_creds)
         cursor = connection.cursor()
         cursor.execute("UPDATE users SET name = %s, gender = %s, contact = %s, location = %s, dob = %s WHERE email = %s", 
-                       (user_creds.get("name"), user_creds.get("gender"), user_creds.get("contact"), 
-                        user_creds.get("location"), user_creds.get("dob"), user_creds.get("email")))
+                       (user_creds["name"], user_creds["gender"], user_creds["contact"], 
+                        user_creds["location"], user_creds["dob"], user_creds["email"]))
         connection.commit()
         return {"success": True, "message": "Profile updated successfully."}
     except Error as e:
+        connection.rollback()
         return {"success": False, "message": "User cannot be updated., Error: " + str(e)}

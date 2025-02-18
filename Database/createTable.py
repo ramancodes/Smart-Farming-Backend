@@ -10,7 +10,7 @@ def create_table(connection):
                 password VARCHAR(255) NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 gender VARCHAR(10),
-                contact INT,
+                contact BIGINT,
                 location VARCHAR(255),
                 dob DATE,
                 registrated_on TIMESTAMP NOT NULL
