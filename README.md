@@ -10,6 +10,7 @@ Table of Contents
 * [Project Features](#features)
 * [Installation](#installation)
 * [Usage](#usage)
+* [API Routes](#api-routes)
 
 Technology Required
 --------------------
@@ -63,3 +64,139 @@ To use the project, follow these steps:
 ```bash
 python app.py
 ```
+
+API Routes
+------------
+
+* Register User
+API:
+```bash
+<Host>:8080/api/register_user
+```
+
+Request:
+```bash
+{
+    "email": "<String>",
+    "password": "<String>",
+    "name": "<String>"
+}
+```
+
+Response:
+{
+    "success": true/false,
+    "message": "<String>"
+}
+
+* Login User
+API:
+```bash
+<Host>:8080/api/login_user
+```
+
+Request:
+```bash
+{
+    "email": "<String>",
+    "password": "<String>"
+}
+```
+
+Response:
+{
+    "success": true/false,
+    "message": "<String>",
+    "token": "<String>"
+}
+
+* Get User Details
+API:
+```bash
+<Host>:8080/api/get_user
+```
+
+Request:
+```bash
+{
+    "token": "<String>"
+}
+```
+
+Response:
+{
+    "success": true/false,
+    "message": "<message>",
+    "user": "<Array>" #[email, name, gender, phoneNo, location, dob, registered_on]
+}
+
+* Update User Details
+API:
+```bash
+<Host>:8080/api/update_user
+```
+
+Request:
+```bash
+{
+    "email": "<String>",
+    "name": "<String>",
+    "gender": "<String -> Male/Female/Other>",
+    "phoneNo": "<String>",
+    "dob": "<DD-MM-YYYY>",
+    "location": "<String>"
+}
+```
+
+Response:
+{
+    "success": true/false,
+    "message": "<String>",
+}
+
+* Crop Recommendation
+API:
+```bash
+<Host>:8080/api/crop_recommendation
+```
+
+Request:
+```bash
+{
+    "nitrogen": "<int>",
+    "phosphorus": "<int>",
+    "potassium": "<int>",
+    "temperature": "<float>", 
+    "humidity": "<float>",
+    "rainfall": "<float>",
+    "ph": "<float>"
+}
+```
+
+Response:
+{
+    "success": true/false,
+    "result": "<String>",
+    "explanation": "<String>"
+}
+
+* Crop Disease Detection
+API:
+```bash
+<Host>:8080/api/disease_detection
+```
+
+Request:
+```bash
+{
+    "file": "<formData -> jpg, png, jepg>",
+}
+```
+
+Response:
+{
+    "success": true/false,
+    "result": "<String>",
+    "explanation": "<String>"
+}
+
