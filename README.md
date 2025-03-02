@@ -57,9 +57,9 @@ To use the project, follow these steps:
 
 1. Activate the Virtual Environment: 
 ```bash
-`.\env\Scripts\activate`
+.\env\Scripts\activate
 ```
 2. Run the project: 
 ```bash
-`python app.py`
+python app.py
 ```
