@@ -151,7 +151,7 @@ Request:
 Response:
 {
     "success": true/false,
-    "message": "<String>",
+    "message": "<String>"
 }
 
 * Crop Recommendation
@@ -195,8 +195,8 @@ Request:
 
 Response:
 {
-    "success": true/false,\n
-    "result": "String",\n
-    "explanation": "String"
+    "success": true/false,
+    "result": "<String>",
+    "explanation": "<String>"
 }
 
