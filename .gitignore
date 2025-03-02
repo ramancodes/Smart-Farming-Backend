@@ -14,3 +14,6 @@
 
 # offline models
 /Models
+
+# vscode
+.vscode
