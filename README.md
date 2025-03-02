@@ -195,8 +195,8 @@ Request:
 
 Response:
 {
-    "success": true/false,
-    "result": "<String>",
-    "explanation": "<String>"
+    "success": true/false,\n
+    "result": "String",\n
+    "explanation": "String"
 }
 
