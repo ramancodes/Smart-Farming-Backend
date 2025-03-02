@@ -6,6 +6,16 @@ sys.path.append('./Database')
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
+import os
+import json
+from PIL import Image
+
+import numpy as np
+import tensorflow as tf
+from werkzeug.utils import secure_filename
+
+from PlantDisease.PlantDiseaseDetection import predict_image_class
+
 from CropRecommendation import getCropRecommendation
 from Database.connectDB import DB
 from Database.createTable import create_table
@@ -25,9 +35,15 @@ CORS(app, resources={
     }
 })
 
-# Load the pre-trained ML model and vectorizer
+# Load the pre-trained Crop Recomendation ML model and vectorizer
 CropRecommendation_model = joblib.load(open(".\Models\CropRecommendation\model.joblib", 'rb'))
 CropRecommendation_scaler = joblib.load(open(".\Models\CropRecommendation\scaler.joblib", 'rb'))
+
+# Load the pre-trained ML model
+PlantDisease_model = tf.keras.models.load_model(".\Models\PlantDisease\plant_disease_prediction_model.h5")
+PlantDisease_class_indices = json.load(open(".\Models\PlantDisease\class_indices.json"))
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 # connect database
 db = DB("localhost", "SmartFarming", "postgres", "root")
@@ -71,9 +87,43 @@ def crop_recommendation():
     except Exception as e:
         return jsonify({"success":False, 'message': str(e)}), 400
     
+def allowed_file(filename):
+    """Check if the file has an allowed extension."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    
 @app.route('/api/disease_detection', methods=['POST'])
 def disease_detection():
-    pass
+    try:
+        if 'file' not in request.files:
+            return jsonify({"success": False, 'message': 'No file part in the request'}), 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({"success": False, 'message': 'No file selected for uploading'}), 400
+
+        if file and allowed_file(file.filename):
+            # Secure the filename to avoid any issues
+            filename = secure_filename(file.filename)
+
+            # Save the file temporarily
+            temp_dir = os.path.join(os.getcwd(), 'tmp')
+            if not os.path.exists(temp_dir):
+                os.makedirs(temp_dir)
+
+            # Save the file to the temporary directory
+            file_path = os.path.join(temp_dir, filename)
+            file.save(file_path)
+
+            prediction, explanation = predict_image_class(PlantDisease_model, file_path, PlantDisease_class_indices)
+
+            os.remove(file_path)
+
+            return jsonify({"success": True, 'result': prediction, 'explanation': explanation}), 200
+        else:
+            return jsonify({"success": False, 'message': 'Allowed file types are png, jpg, jpeg'}), 400
+    except Exception as e:
+        return jsonify({"success":False, 'message': str(e)}), 400
 
 @app.route('/api/update_user', methods=['POST'])
 def updateUser():

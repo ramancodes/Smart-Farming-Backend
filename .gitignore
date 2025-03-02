@@ -11,3 +11,6 @@
 /CropRecommendation/__pycache__
 /Gemini/__pycache__
 /Database/__pycache__
+
+# offline models
+/Models
