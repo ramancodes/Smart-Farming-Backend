@@ -19,7 +19,8 @@ def getCropRecommendation(model, scaler, nitrogen, phosphorus, potassium, temper
     explanation = None
 
     if predicted_crop:
-        gpt_query = f'summaize the requirements for growing {predicted_crop} in 5 lines'
-        explanation = getExplanation(gpt_query).replace("*", "")
+        # gpt_query = f'summaize the requirements for growing {predicted_crop} in 5 lines'
+        gpt_query = f'summaize the requirements for growing {predicted_crop} and do not make the text bold'
+        explanation = getExplanation(gpt_query)
 
     return predicted_crop, explanation
