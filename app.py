@@ -54,6 +54,9 @@ if connection != None:
     else:
         connection = None
 
+@app.route('/api/check', methods=["GET"])
+def check():
+    return "API is working", 200
 
 @app.route('/api/crop_recommendation', methods=['POST'])
 def crop_recommendation():
