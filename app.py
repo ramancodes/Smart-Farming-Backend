@@ -71,7 +71,7 @@ def get_sensor_data():
         res_data = res_data.json()
         if res_data["success"]==True:
             data = res_data["data"]
-            return jsonify({"success":False, "data": data}), 200
+            return jsonify({"success":True, "data": data}), 200
         else:
             error = res_data["error"]
             return jsonify({"success":False, "message": f"Failed to get sensor data. {error}"}), 400
@@ -117,6 +117,7 @@ def allowed_file(filename):
     
 @app.route('/api/disease_detection', methods=['POST'])
 def disease_detection():
+    file_path = None
     try:
         if 'file' not in request.files:
             return jsonify({"success": False, 'message': 'No file part in the request'}), 400
@@ -141,13 +142,13 @@ def disease_detection():
 
             prediction, explanation = predict_image_class(PlantDisease_model, file_path, PlantDisease_class_indices)
 
-            os.remove(file_path)
-
             return jsonify({"success": True, 'result': prediction, 'explanation': explanation}), 200
         else:
             return jsonify({"success": False, 'message': 'Allowed file types are png, jpg, jpeg'}), 400
     except Exception as e:
         return jsonify({"success":False, 'message': str(e)}), 400
+    finally:
+        os.remove(file_path)
 
 @app.route('/api/update_user', methods=['POST'])
 def updateUser():
