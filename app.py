@@ -8,7 +8,9 @@ from flask_cors import CORS
 import joblib
 import os
 import json
+import requests
 from PIL import Image
+from dotenv import load_dotenv
 
 import numpy as np
 import tensorflow as tf
@@ -16,7 +18,7 @@ from werkzeug.utils import secure_filename
 
 from PlantDisease.PlantDiseaseDetection import predict_image_class
 
-from CropRecommendation import getCropRecommendation
+from CropRecommendation import getCropRecommendation 
 from Database.connectDB import DB
 from Database.createTable import create_table
 from Database.dbOperations import register_user, login_user, update_profile, get_user_profile
@@ -54,9 +56,28 @@ if connection != None:
     else:
         connection = None
 
+# load the env variables
+load_dotenv()
+iot_api=os.getenv('IOT_API')
+
 @app.route('/api/check', methods=["GET"])
 def check():
     return "API is working", 200
+
+@app.route('/api/get-senor-data', methods=['GET'])
+def get_sensor_data():
+    try:
+        res_data = requests.get(iot_api)
+        res_data = res_data.json()
+        if res_data["success"]==True:
+            data = res_data["data"]
+            return jsonify({"success":False, "data": data}), 200
+        else:
+            error = res_data["error"]
+            return jsonify({"success":False, "message": f"Failed to get sensor data. {error}"}), 400
+    except Exception as e:
+        return jsonify({"success":False, 'message': str(e)}), 400
+
 
 @app.route('/api/crop_recommendation', methods=['POST'])
 def crop_recommendation():
