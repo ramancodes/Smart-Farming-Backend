@@ -69,7 +69,7 @@ API Routes
 ------------
 
 * Register User
-API:
+API: POST
 ```bash
 <Host>:8080/api/register_user
 ```
@@ -90,7 +90,7 @@ Response:
 }
 
 * Login User
-API:
+API: POST
 ```bash
 <Host>:8080/api/login_user
 ```
@@ -111,7 +111,7 @@ Response:
 }
 
 * Get User Details
-API:
+API: POST
 ```bash
 <Host>:8080/api/get_user
 ```
@@ -131,7 +131,7 @@ Response:
 }
 
 * Update User Details
-API:
+API: POST
 ```bash
 <Host>:8080/api/update_user
 ```
@@ -155,7 +155,7 @@ Response:
 }
 
 * Crop Recommendation
-API:
+API: POST
 ```bash
 <Host>:8080/api/crop_recommendation
 ```
@@ -180,8 +180,23 @@ Response:
     "explanation": "<String>"
 }
 
+* Get IOT Data
+API: GET
+```bash
+<Host>:8080/api/get-senor-data
+```
+
+Response:
+{
+    "success": true/false,
+    "data": {
+        "humidity": "<float>",
+        "temperature": "<float>"
+    }
+}
+
 * Crop Disease Detection
-API:
+API: POST
 ```bash
 <Host>:8080/api/disease_detection
 ```
